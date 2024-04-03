@@ -1,3 +1,18 @@
+# v2024.04.03
+
+## What's Changed
+
+- Remove automated PR against salt repo at release by @ScriptAutomate in https://github.com/saltstack/salt-bootstrap/pull/1984
+- Update actions by @twangboy in https://github.com/saltstack/salt-bootstrap/pull/1985
+- Fix DEBIAN Keyring url by @Dudek-AMS in https://github.com/saltstack/salt-bootstrap/pull/1983
+- Fix script to support installing RC on Windows by @twangboy in https://github.com/saltstack/salt-bootstrap/pull/1993
+
+## New Contributors
+
+- @Dudek-AMS made their first contribution in https://github.com/saltstack/salt-bootstrap/pull/1983
+
+**Full Changelog**: https://github.com/saltstack/salt-bootstrap/compare/v2024.01.04...v2024.04.03
+
 # v2024.01.04
 
 ## What's Changed
