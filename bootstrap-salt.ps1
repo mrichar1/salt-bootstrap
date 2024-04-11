@@ -94,7 +94,12 @@ param(
     [Parameter(Mandatory=$false)]
     [Alias("h")]
     # Displays help for this script.
-    [Switch] $Help
+    [Switch] $Help,
+
+    [Parameter(Mandatory=$false)]
+    [Alias("e")]
+    # Displays the Version for this script.
+    [Switch] $ScriptVersion
 )
 
 # We'll check for help first because it really has no requirements
@@ -102,6 +107,15 @@ if ($help) {
     # Get the full script name
     $this_script = & {$myInvocation.ScriptName}
     Get-Help $this_script -Detailed
+    exit 0
+}
+
+$__ScriptVersion = "2024.04.03"
+$ScriptName = $myInvocation.MyCommand.Name
+
+# We'll check for the Version next, because it also has no requirements
+if ($ScriptVersion) {
+    Write-Host $__ScriptVersion
     exit 0
 }
 
@@ -303,6 +317,8 @@ if ( [Uri]($RepoUrl).AbsoluteUri -eq $defaultUrl ) {
 #===============================================================================
 # Verify Parameters
 #===============================================================================
+Write-Verbose "Running Script: $ScriptName"
+Write-Verbose "Script Version: $__ScriptVersion"
 Write-Verbose "Parameters passed in:"
 Write-Verbose "version: $Version"
 Write-Verbose "runservice: $RunService"
