@@ -1,3 +1,17 @@
+# v2024.07.12
+
+## What's Changed
+
+- Add script version to powershell script by @twangboy in https://github.com/saltstack/salt-bootstrap/pull/1996
+- Add support for mint-21 by @jhubbardnso in https://github.com/saltstack/salt-bootstrap/pull/1997
+- Added support for Amazon 2023, Debian 12, Ubuntu 24.04, removed EOL and BSD OSs and Python 2.7 support by @dmurphy18 in https://github.com/saltstack/salt-bootstrap/pull/1987
+
+## New Contributors
+
+- @jhubbardnso made their first contribution in https://github.com/saltstack/salt-bootstrap/pull/1997
+
+**Full Changelog**: https://github.com/saltstack/salt-bootstrap/compare/v2024.04.03...v2024.07.12
+
 # v2024.07.11
 
 ## What's Changed
