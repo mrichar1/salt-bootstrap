@@ -205,7 +205,7 @@ jobs:
           git config --global commit.gpgsign true
 
       - name: Download Release Details
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: release-details
 
@@ -260,7 +260,7 @@ jobs:
           repository: ${{ github.repository }}
           ssh-key: ${{ secrets.SALT_BOOTSTRAP_RELEASE_KEY }}
       - name: Download Release Details
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: release-details
 
