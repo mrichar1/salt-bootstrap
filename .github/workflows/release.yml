@@ -139,7 +139,7 @@ jobs:
           repository: ${{ github.repository }}
 
       - name: Upload Release Details
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: release-details
           path: |
