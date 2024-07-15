@@ -1389,6 +1389,7 @@ __check_dpkg_architecture() {
             ;;
         "arm64")
             # Saltstack official repository has full arm64 support since 3006
+            error_msg=""
             __REPO_ARCH="arm64"
             __REPO_ARCH_DEB="deb [signed-by=/usr/share/keyrings/salt-archive-keyring.gpg arch=$__REPO_ARCH]"
             ;;
