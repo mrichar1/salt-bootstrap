@@ -373,7 +373,9 @@ Supported Operating Systems
 ---------------------------
 
 The salt-bootstrap script officially supports the distributions outlined in
-`Salt's Supported Operating Systems`_ document, (BSD-based OSs, Solaris and AIX are no longer
+`Salt's Supported Operating Systems
+<https://docs.saltproject.io/salt/install-guide/en/latest/topics/salt-supported-operating-systems.html>`_
+document, (BSD-based OSs, Solaris and AIX are no longer
 supported).  The operating systems listed below should reflect this document but may become out of
 date. If an operating system is listed below, but is not listed on the official supported operating
 systems document, the level of support is "best-effort".
