@@ -26,7 +26,7 @@
 #======================================================================================================================
 set -o nounset                              # Treat unset variables as an error
 
-__ScriptVersion="2024.07.18"
+__ScriptVersion="2024.07.23"
 __ScriptName="bootstrap-salt.sh"
 
 __ScriptFullName="$0"
@@ -228,6 +228,7 @@ _TEMP_KEYS_DIR="null"
 _SLEEP="${__DEFAULT_SLEEP}"
 _INSTALL_MASTER=$BS_FALSE
 _INSTALL_SYNDIC=$BS_FALSE
+_INSTALL_SALT_API=$BS_FALSE
 _INSTALL_MINION=$BS_TRUE
 _INSTALL_CLOUD=$BS_FALSE
 _VIRTUALENV_DIR=${BS_VIRTUALENV_DIR:-"null"}
@@ -339,7 +340,7 @@ __usage() {
         step.
     -c  Temporary configuration directory
     -C  Only run the configuration function. Implies -F (forced overwrite).
-        To overwrite Master or Syndic configs, -M or -S, respectively, must
+        To overwrite Master, Syndic or Api configs, -M,-S or -W, respectively, must
         also be specified. Salt installation will be ommitted, but some of the
         dependencies could be installed to write configuration with -j or -J.
     -d  Disables checking if Salt services are enabled to start on system boot.
@@ -397,6 +398,7 @@ __usage() {
     -s  Sleep time used when waiting for daemons to start, restart and when
         checking for the services running. Default: ${__DEFAULT_SLEEP}
     -S  Also install salt-syndic
+    -W  Also install salt-api
     -r  Disable all repository configuration performed by this script. This
         option assumes all necessary repository configuration is already present
         on the system.
@@ -411,7 +413,7 @@ __usage() {
 EOT
 }   # ----------  end of function __usage  ----------
 
-while getopts ':hvnDc:g:Gx:k:s:MSNXCPFUKIA:i:Lp:dH:bflV:J:j:rR:aqQ' opt
+while getopts ':hvnDc:g:Gx:k:s:MSWNXCPFUKIA:i:Lp:dH:bflV:J:j:rR:aqQ' opt
 do
   case "${opt}" in
 
@@ -431,6 +433,7 @@ do
     s )  _SLEEP=$OPTARG                                 ;;
     M )  _INSTALL_MASTER=$BS_TRUE                       ;;
     S )  _INSTALL_SYNDIC=$BS_TRUE                       ;;
+    W )  _INSTALL_SALT_API=$BS_TRUE                     ;;
     N )  _INSTALL_MINION=$BS_FALSE                      ;;
     X )  _START_DAEMONS=$BS_FALSE                       ;;
     C )  _CONFIG_ONLY=$BS_TRUE                          ;;
@@ -718,7 +721,7 @@ if [ "$($whoami)" != "root" ]; then
 fi
 
 # Check that we're actually installing one of minion/master/syndic
-if [ "$_INSTALL_MINION" -eq $BS_FALSE ] && [ "$_INSTALL_MASTER" -eq $BS_FALSE ] && [ "$_INSTALL_SYNDIC" -eq $BS_FALSE ] && [ "$_CONFIG_ONLY" -eq $BS_FALSE ]; then
+if [ "$_INSTALL_MINION" -eq $BS_FALSE ] && [ "$_INSTALL_MASTER" -eq $BS_FALSE ] && [ "$_INSTALL_SYNDIC" -eq $BS_FALSE ] && [ "$_INSTALL_SALT_API" -eq $BS_FALSE ] && [ "$_CONFIG_ONLY" -eq $BS_FALSE ]; then
     echowarn "Nothing to install or configure"
     exit 1
 fi
@@ -1764,6 +1767,14 @@ if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ]; then
         echoinfo "Installing syndic"
     else
         echoinfo "Configuring syndic"
+    fi
+fi
+
+if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+    if [ "$_CONFIG_ONLY" -eq $BS_FALSE ]; then
+        echoinfo "Installing salt api"
+    else
+        echoinfo "Configuring salt api"
     fi
 fi
 
@@ -3123,6 +3134,10 @@ install_ubuntu_stable() {
         __PACKAGES="${__PACKAGES} salt-syndic"
     fi
 
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
+    fi
+
     # shellcheck disable=SC2086
     __apt_get_install_noinput ${__PACKAGES} || return 1
 
@@ -3172,6 +3187,10 @@ install_ubuntu_onedir() {
     fi
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ]; then
         __PACKAGES="${__PACKAGES} salt-syndic"
+    fi
+
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
     fi
 
     # shellcheck disable=SC2086
@@ -3527,6 +3546,10 @@ install_debian_stable() {
         __PACKAGES="${__PACKAGES} salt-syndic"
     fi
 
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
+    fi
+
     # shellcheck disable=SC2086
     __apt_get_install_noinput ${__PACKAGES} || return 1
 
@@ -3596,6 +3619,10 @@ install_debian_onedir() {
     fi
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ]; then
         __PACKAGES="${__PACKAGES} salt-syndic"
+    fi
+
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
     fi
 
     # shellcheck disable=SC2086
@@ -3948,6 +3975,10 @@ install_fedora_onedir() {
         __PACKAGES="${__PACKAGES} salt-syndic"
     fi
 
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
+    fi
+
     # shellcheck disable=SC2086
     __yum_install_noinput ${__PACKAGES} || return 1
 
@@ -4091,6 +4122,10 @@ install_centos_stable() {
     fi
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ];then
         __PACKAGES="${__PACKAGES} salt-syndic"
+    fi
+
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
     fi
 
     # shellcheck disable=SC2086
@@ -4287,6 +4322,10 @@ install_centos_onedir() {
     fi
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ];then
         __PACKAGES="${__PACKAGES} salt-syndic"
+    fi
+
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
     fi
 
     # shellcheck disable=SC2086
@@ -5142,6 +5181,10 @@ install_alpine_linux_stable() {
     fi
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ]; then
         __PACKAGES="${__PACKAGES} salt-syndic"
+    fi
+
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
     fi
 
     # shellcheck disable=SC2086
@@ -6150,6 +6193,10 @@ install_photon_onedir() {
         __PACKAGES="${__PACKAGES} salt-syndic"
     fi
 
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
+    fi
+
     # shellcheck disable=SC2086
     __tdnf_install_noinput ${__PACKAGES} || return 1
 
@@ -6344,6 +6391,10 @@ install_opensuse_stable() {
     fi
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ]; then
         __PACKAGES="${__PACKAGES} salt-syndic"
+    fi
+
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
+        __PACKAGES="${__PACKAGES} salt-api"
     fi
 
     # shellcheck disable=SC2086
@@ -7294,8 +7345,11 @@ config_salt() {
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ] && [ "$_CONFIG_ONLY" -eq $BS_TRUE ]; then
         OVERWRITE_MASTER_CONFIGS=$BS_TRUE
     fi
+    if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ] && [ "$_CONFIG_ONLY" -eq $BS_TRUE ]; then
+        OVERWRITE_MASTER_CONFIGS=$BS_TRUE
+    fi
 
-    if [ "$_INSTALL_MASTER" -eq $BS_TRUE ] || [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ] || [ "$OVERWRITE_MASTER_CONFIGS" -eq $BS_TRUE ] || [ "$_CUSTOM_MASTER_CONFIG" != "null" ]; then
+    if [ "$_INSTALL_MASTER" -eq $BS_TRUE ] || [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ] || [ "$_INSTALL_SALT_API" -eq $BS_TRUE ] || [ "$OVERWRITE_MASTER_CONFIGS" -eq $BS_TRUE ] || [ "$_CUSTOM_MASTER_CONFIG" != "null" ]; then
         # Create the PKI directory
         [ -d "$_PKI_DIR/master" ] || (mkdir -p "$_PKI_DIR/master" && chmod 700 "$_PKI_DIR/master") || return 1
 
