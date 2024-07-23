@@ -398,7 +398,6 @@ __usage() {
     -s  Sleep time used when waiting for daemons to start, restart and when
         checking for the services running. Default: ${__DEFAULT_SLEEP}
     -S  Also install salt-syndic
-    -W  Also install salt-api
     -r  Disable all repository configuration performed by this script. This
         option assumes all necessary repository configuration is already present
         on the system.
@@ -406,6 +405,7 @@ __usage() {
     -v  Display script version
     -V  Install Salt into virtualenv
         (only available for Ubuntu based distributions)
+    -W  Also install salt-api
     -x  Changes the Python version used to install Salt (default: Python 3).
         Python 2.7 is no longer supported.
     -X  Do not start daemons after installation
