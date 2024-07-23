@@ -119,6 +119,7 @@ To view the latest options and descriptions for ``salt-bootstrap``, use ``-h`` a
     -L  Also install salt-cloud and required python-libcloud package
     -M  Also install salt-master
     -S  Also install salt-syndic
+    -W  Also install salt-api
     -N  Do not install salt-minion
     -X  Do not start daemons after installation
     -d  Disables checking if Salt services are enabled to start on system boot.
