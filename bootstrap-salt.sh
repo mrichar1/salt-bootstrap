@@ -1280,7 +1280,7 @@ __gather_system_info() {
 #----------------------------------------------------------------------------------------------------------------------
 # shellcheck disable=SC2034
 __ubuntu_derivatives_translation() {
-    UBUNTU_DERIVATIVES="(trisquel|linuxmint|elementary_os|pop)"
+    UBUNTU_DERIVATIVES="(trisquel|linuxmint|elementary_os|pop|neon)"
     # Mappings
     trisquel_10_ubuntu_base="20.04"
     trisquel_11_ubuntu_base="22.04"
