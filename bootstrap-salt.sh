@@ -2106,7 +2106,7 @@ __git_clone_and_checkout() {
                     # shellcheck disable=SC2164
                     cd "${_SALT_GIT_CHECKOUT_DIR}"
                     __SHALLOW_CLONE=$BS_TRUE
-                    echoinfo  "shallow git cloned $GIT_REV, version $(git describe)"
+                    echoinfo  "shallow git cloned $GIT_REV, version $(python3 salt/version.py)"
                 else
                     # Shallow clone above failed(missing upstream tags???), let's resume the old behaviour.
                     echowarn "Failed to shallow clone."
@@ -2124,7 +2124,7 @@ __git_clone_and_checkout() {
             # shellcheck disable=SC2164
             cd "${_SALT_GIT_CHECKOUT_DIR}"
 
-            echoinfo  "git cloned $GIT_REV, version $(git describe)"
+            echoinfo  "git cloned $GIT_REV, version $(python3 salt/version.py)"
 
             if ! echo "$_SALT_REPO_URL" | grep -q -F -w "${_SALTSTACK_REPO_URL#*://}"; then
                 # We need to add the saltstack repository as a remote and fetch tags for proper versioning
@@ -2703,7 +2703,7 @@ EOM
 
     mkdir -p /tmp/git/deps
     echodebug "Created directory /tmp/git/deps"
-    echodebug "Installing Salt dependencies for Salt version $(git describe)"
+    echodebug "Installing Salt dependencies for Salt version $(python3 salt/version.py)"
 
     if [ ${DISTRO_NAME_L} = "ubuntu" ] && [ "$DISTRO_MAJOR_VERSION" -eq 22 ]; then
         echodebug "Ubuntu 22.04 has problem with base.txt requirements file, not parsing sys_platform == 'win32', upgrading from default pip works"
