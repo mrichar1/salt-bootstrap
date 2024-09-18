@@ -346,20 +346,6 @@ jobs:
       instances: '["latest", "default"]'
 
 
-  opensuse-tumbleweed:
-    name: Opensuse Tumbleweed
-    if: github.event_name == 'push' || needs.collect-changed-files.outputs.run-tests == 'true'
-    uses: ./.github/workflows/test-linux.yml
-    needs:
-      - lint
-      - generate-actions-workflow
-    with:
-      distro-slug: opensuse-tumbleweed
-      display-name: Opensuse Tumbleweed
-      timeout: 20
-      instances: '["git-master", "latest", "default"]'
-
-
   oraclelinux-8:
     name: Oracle Linux 8
     if: github.event_name == 'push' || needs.collect-changed-files.outputs.run-tests == 'true'
@@ -510,7 +496,6 @@ jobs:
       - gentoo
       - gentoo-systemd
       - opensuse-15
-      - opensuse-tumbleweed
       - oraclelinux-8
       - oraclelinux-9
       - photon-4

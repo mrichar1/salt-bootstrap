@@ -3843,6 +3843,10 @@ install_fedora_git_deps() {
         CONFIG_SALT_FUNC="config_salt"
     fi
 
+    _fedora_dep="contextvars"
+    echodebug "Running '${_PY_EXE} -m pip install --upgrade ${_fedora_dep}'"
+    ${_PY_EXE} -m pip install --upgrade "${_fedora_dep}"
+
     return 0
 }
 
