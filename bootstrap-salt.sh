@@ -260,7 +260,7 @@ _EXTRA_PACKAGES=""
 _HTTP_PROXY=""
 _SALT_GIT_CHECKOUT_DIR=${BS_SALT_GIT_CHECKOUT_DIR:-/tmp/git/salt}
 _NO_DEPS=$BS_FALSE
-_FORCE_SHALLOW_CLONE=$BS_FALSE
+## DGM _FORCE_SHALLOW_CLONE=$BS_FALSE
 _DISABLE_SSL=$BS_FALSE
 _DISABLE_REPOS=$BS_FALSE
 _CUSTOM_REPO_URL="null"
@@ -2102,7 +2102,12 @@ __git_clone_and_checkout() {
             if [ "$(git clone 2>&1 | grep 'single-branch')" != "" ]; then
                 # The "--single-branch" option is supported, attempt shallow cloning
                 echoinfo "Attempting to shallow clone $GIT_REV from Salt's repository ${_SALT_REPO_URL}"
-                if git clone --depth 1 --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
+                ## DGM Shallow cloning is resulting in the wrong version of Salt, even with a depth of 5
+                ## DGM getting 3007.0+0na.246d066 when it should be 3007.1+410.g246d066457
+                ## DGM disabling for now
+                ## DGM if git clone --depth 1 --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
+                echodebug "git command, git clone --branch $GIT_REV $_SALT_REPO_URL $__SALT_CHECKOUT_REPONAME"
+                if git clone --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
                     # shellcheck disable=SC2164
                     cd "${_SALT_GIT_CHECKOUT_DIR}"
                     __SHALLOW_CLONE=$BS_TRUE
@@ -2120,6 +2125,7 @@ __git_clone_and_checkout() {
         fi
 
         if [ "$__SHALLOW_CLONE" -eq $BS_FALSE ]; then
+            echodebug "shadow clone false, BS_FALSE $BS_FALSE, git clone $_SALT_REPO_URL $__SALT_CHECKOUT_REPONAME"
             git clone "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME" || return 1
             # shellcheck disable=SC2164
             cd "${_SALT_GIT_CHECKOUT_DIR}"
