@@ -272,7 +272,9 @@ _ONEDIR_DIR="salt"
 _ONEDIR_NIGHTLY_DIR="salt-dev/${_ONEDIR_DIR}"
 _PY_EXE="python3"
 _MINIMUM_PIP_VERSION="9.0.1"
-_MINIMUM_SETUPTOOLS_VERSION="9.1"
+## DGM _MINIMUM_SETUPTOOLS_VERSION="9.1"
+_MINIMUM_SETUPTOOLS_VERSION="65.6.3"
+_MAXIMUM_SETUPTOOLS_VERSION="69"
 _PIP_INSTALL_ARGS="--prefix=/usr"
 _PIP_DOWNLOAD_ARGS=""
 _QUICK_START="$BS_FALSE"
@@ -1853,7 +1855,7 @@ if [ "$ITYPE" = "git" ]; then
     echowarn "git based installations will always install salt"
     echowarn "and its dependencies using pip which will be upgraded to"
     echowarn "at least v${_MINIMUM_PIP_VERSION}, and, in case the setuptools version is also"
-    echowarn "too old, it will be upgraded to at least v${_MINIMUM_SETUPTOOLS_VERSION}"
+    echowarn "too old, it will be upgraded to at least v${_MINIMUM_SETUPTOOLS_VERSION} and less than v${_MAXIMUM_SETUPTOOLS_VERSION}"
     echo
     echowarn "You have 10 seconds to cancel and stop the bootstrap process..."
     echo
@@ -2687,7 +2689,7 @@ EOM
         echodebug "Installed pip version: $(${_pip_cmd} --version)"
     fi
 
-    _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION}"
+    _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION},<${_MAXIMUM_SETUPTOOLS_VERSION}"
     if [ "$_PY_MAJOR_VERSION" -ne 3 ]; then
         echoerror "Python version is no longer supported, only Python 3"
         return 1
@@ -2704,7 +2706,7 @@ EOM
     echodebug "Running '${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --upgrade ${_PIP_INSTALL_ARGS}  wheel ${_setuptools_dep}"
     ${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --upgrade ${_PIP_INSTALL_ARGS}  wheel "${_setuptools_dep}"
 
-    echoinfo "Installing salt using ${_py_exe}"
+    echoinfo "Installing salt using ${_py_exe}, $(${_py_exe} --version)"
     cd "${_SALT_GIT_CHECKOUT_DIR}" || return 1
 
     mkdir -p /tmp/git/deps
@@ -6039,7 +6041,7 @@ install_photon_git_deps() {
 
     if [ "${DISTRO_MAJOR_VERSION}" -gt 3 ]; then
       # Need newer version of setuptools on Photon
-      _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION}"
+      _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION},<${_MAXIMUM_SETUPTOOLS_VERSION}"
       echodebug "Running '${_PY_EXE} -m pip install --upgrade ${_setuptools_dep}'"
       ${_PY_EXE} -m pip install --upgrade "${_setuptools_dep}"
     fi
