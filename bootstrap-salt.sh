@@ -5735,7 +5735,7 @@ install_arch_linux_git_deps() {
     fi
 
     _arch_dep="cryptography==42.0.0"
-    echodebug "Running '${_PY_EXE} -m pip install -break-system-packages --upgrade ${_arch_dep}'"
+    echodebug "Running '${_PY_EXE} -m pip install --break-system-packages --upgrade ${_arch_dep}'"
     ${_PY_EXE} -m pip install --upgrade "${_arch_dep}"
 
     return 0
