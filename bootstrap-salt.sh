@@ -1238,7 +1238,6 @@ __gather_linux_system_info() {
         esac
         DISTRO_NAME=$n
         DISTRO_VERSION=$v
-        echodebug "Linux distro '${DISTRO_NAME}', distro version '${DISTRO_VERSION}'"
         break
     done
 }
@@ -1251,7 +1250,6 @@ __gather_linux_system_info() {
 __gather_osx_system_info() {
     DISTRO_NAME="MacOSX"
     DISTRO_VERSION=$(sw_vers -productVersion)
-    echodebug "MacOS distro '${DISTRO_NAME}', distro version '${DISTRO_VERSION}'"
 }
 
 
@@ -2747,11 +2745,13 @@ EOM
 
     if [ "${DISTRO_NAME}"  = "Arch Linux" ]; then
         _arch_dep="cryptography==42.0.0"
-        echodebug "Running '${_pip_cmd} --force-reinstall --break-system-packages ${_arch_dep}'"
-        ${_pip_cmd} --force-reinstall --break-system-packages "${_arch_dep}"
+        echodebug "Running '${_pip_cmd} install --force-reinstall --break-system-packages ${_arch_dep}'"
+        ${_pip_cmd} install --force-reinstall --break-system-packages "${_arch_dep}"
     fi
 
     echodebug "Running '${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --no-deps --force-reinstall ${_PIP_INSTALL_ARGS} /tmp/git/deps/salt*.whl'"
+
+    echodebug "Running ${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --no-deps --force-reinstall ${_PIP_INSTALL_ARGS} --global-option=--salt-config-dir=$_SALT_ETC_DIR --salt-cache-dir=${_SALT_CACHE_DIR} ${SETUP_PY_INSTALL_ARGS} /tmp/git/deps/salt*.whl"
 
     ${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --no-deps --force-reinstall \
         ${_PIP_INSTALL_ARGS} \
