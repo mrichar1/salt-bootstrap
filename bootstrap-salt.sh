@@ -2744,7 +2744,7 @@ EOM
     ${_pip_cmd} uninstall --yes ${_USE_BREAK_SYSTEM_PACKAGES} salt 2>/dev/null || true
 
     if [ "${DISTRO_NAME}"  = "Arch Linux" ]; then
-        _arch_dep="cryptography==42.0.0"
+        _arch_dep="cryptography==42.0.7"    # debug matching current Arch version of python-cryptography
         echodebug "Running '${_pip_cmd} install --force-reinstall --break-system-packages ${_arch_dep}'"
         ${_pip_cmd} install --force-reinstall --break-system-packages "${_arch_dep}"
     fi
