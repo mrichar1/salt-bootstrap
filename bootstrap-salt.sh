@@ -2111,7 +2111,7 @@ __git_clone_and_checkout() {
                     # shellcheck disable=SC2164
                     cd "${_SALT_GIT_CHECKOUT_DIR}"
                     __SHALLOW_CLONE=$BS_TRUE
-                    echoinfo  "shallow git cloned $GIT_REV, version $(python3 salt/version.py)"
+                    echoinfo  "shallow path (disabled shallow) git cloned $GIT_REV, version $(python3 salt/version.py)"
                 else
                     # Shallow clone above failed(missing upstream tags???), let's resume the old behaviour.
                     echowarn "Failed to shallow clone."
@@ -2125,7 +2125,7 @@ __git_clone_and_checkout() {
         fi
 
         if [ "$__SHALLOW_CLONE" -eq $BS_FALSE ]; then
-            echodebug "shadow clone false, BS_FALSE $BS_FALSE, git clone $_SALT_REPO_URL $__SALT_CHECKOUT_REPONAME"
+            echodebug "shallow clone false, BS_FALSE $BS_FALSE, git clone $_SALT_REPO_URL $__SALT_CHECKOUT_REPONAME"
             git clone "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME" || return 1
             # shellcheck disable=SC2164
             cd "${_SALT_GIT_CHECKOUT_DIR}"
