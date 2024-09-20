@@ -260,7 +260,7 @@ _EXTRA_PACKAGES=""
 _HTTP_PROXY=""
 _SALT_GIT_CHECKOUT_DIR=${BS_SALT_GIT_CHECKOUT_DIR:-/tmp/git/salt}
 _NO_DEPS=$BS_FALSE
-## DGM _FORCE_SHALLOW_CLONE=$BS_FALSE
+_FORCE_SHALLOW_CLONE=$BS_FALSE
 _DISABLE_SSL=$BS_FALSE
 _DISABLE_REPOS=$BS_FALSE
 _CUSTOM_REPO_URL="null"
@@ -272,7 +272,6 @@ _ONEDIR_DIR="salt"
 _ONEDIR_NIGHTLY_DIR="salt-dev/${_ONEDIR_DIR}"
 _PY_EXE="python3"
 _MINIMUM_PIP_VERSION="9.0.1"
-## DGM _MINIMUM_SETUPTOOLS_VERSION="9.1"
 _MINIMUM_SETUPTOOLS_VERSION="65.6.3"
 _MAXIMUM_SETUPTOOLS_VERSION="69.0"
 _PIP_INSTALL_ARGS="--prefix=/usr"
@@ -2104,10 +2103,9 @@ __git_clone_and_checkout() {
             if [ "$(git clone 2>&1 | grep 'single-branch')" != "" ]; then
                 # The "--single-branch" option is supported, attempt shallow cloning
                 echoinfo "Attempting to shallow clone $GIT_REV from Salt's repository ${_SALT_REPO_URL}"
-                ## DGM Shallow cloning is resulting in the wrong version of Salt, even with a depth of 5
-                ## DGM getting 3007.0+0na.246d066 when it should be 3007.1+410.g246d066457
-                ## DGM disabling for now
-                ## DGM if git clone --depth 1 --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
+                ## Shallow cloning is resulting in the wrong version of Salt, even with a depth of 5
+                ## getting 3007.0+0na.246d066 when it should be 3007.1+410.g246d066457, disabling for now
+                ## if git clone --depth 1 --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
                 echodebug "git command, git clone --branch $GIT_REV $_SALT_REPO_URL $__SALT_CHECKOUT_REPONAME"
                 if git clone --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
                     # shellcheck disable=SC2164
@@ -2743,6 +2741,7 @@ EOM
     echoinfo "Installing Built Salt Wheel"
     ${_pip_cmd} uninstall --yes ${_USE_BREAK_SYSTEM_PACKAGES} salt 2>/dev/null || true
 
+    # Hack for getting current Arch working with git-master
     if [ "${DISTRO_NAME}"  = "Arch Linux" ]; then
         _arch_dep="cryptography==42.0.7"    # debug matching current Arch version of python-cryptography
         echodebug "Running '${_pip_cmd} install --force-reinstall --break-system-packages ${_arch_dep}'"
