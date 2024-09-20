@@ -5161,6 +5161,7 @@ install_cloud_linux_check_services() {
 #   Alpine Linux Install Functions
 #
 install_alpine_linux_stable_deps() {
+    _PIP_INSTALL_ARGS=""
     if ! grep -q '^[^#].\+alpine/.\+/community' /etc/apk/repositories; then
         # Add community repository entry based on the "main" repo URL
         __REPO=$(grep '^[^#].\+alpine/.\+/main\>' /etc/apk/repositories)
@@ -5179,6 +5180,7 @@ install_alpine_linux_stable_deps() {
 }
 
 install_alpine_linux_git_deps() {
+    _PIP_INSTALL_ARGS=""
     install_alpine_linux_stable_deps || return 1
 
     if ! __check_command_exists git; then
@@ -5194,6 +5196,7 @@ install_alpine_linux_git_deps() {
 
 install_alpine_linux_stable() {
     __PACKAGES="salt"
+    _PIP_INSTALL_ARGS=""
 
     if [ "$_INSTALL_CLOUD" -eq $BS_TRUE ];then
         __PACKAGES="${__PACKAGES} salt-cloud"
@@ -5218,11 +5221,13 @@ install_alpine_linux_stable() {
 }
 
 install_alpine_linux_git() {
+    _PIP_INSTALL_ARGS=""
      __install_salt_from_repo "${_PY_EXE}" || return 1
     return 0
 }
 
 install_alpine_linux_post() {
+    _PIP_INSTALL_ARGS=""
     for fname in api master minion syndic; do
         # Skip if not meant to be installed
         [ $fname = "api" ] && \
@@ -5252,6 +5257,7 @@ install_alpine_linux_post() {
 }
 
 install_alpine_linux_restart_daemons() {
+    _PIP_INSTALL_ARGS=""
     [ "${_START_DAEMONS}" -eq $BS_FALSE ] && return
 
     for fname in api master minion syndic; do
@@ -5270,6 +5276,7 @@ install_alpine_linux_restart_daemons() {
 }
 
 install_alpine_linux_check_services() {
+    _PIP_INSTALL_ARGS=""
     for fname in api master minion syndic; do
         # Skip salt-api since the service should be opt-in and not necessarily started on boot
         [ $fname = "api" ] && continue
@@ -5286,6 +5293,7 @@ install_alpine_linux_check_services() {
 }
 
 daemons_running_alpine_linux() {
+    _PIP_INSTALL_ARGS=""
     [ "${_START_DAEMONS}" -eq $BS_FALSE ] && return
 
     FAILED_DAEMONS=0
