@@ -272,7 +272,8 @@ _ONEDIR_DIR="salt"
 _ONEDIR_NIGHTLY_DIR="salt-dev/${_ONEDIR_DIR}"
 _PY_EXE="python3"
 _MINIMUM_PIP_VERSION="9.0.1"
-_MINIMUM_SETUPTOOLS_VERSION="9.1"
+_MINIMUM_SETUPTOOLS_VERSION="65.6.3"
+_MAXIMUM_SETUPTOOLS_VERSION="69.0"
 _PIP_INSTALL_ARGS="--prefix=/usr"
 _PIP_DOWNLOAD_ARGS=""
 _QUICK_START="$BS_FALSE"
@@ -1853,7 +1854,7 @@ if [ "$ITYPE" = "git" ]; then
     echowarn "git based installations will always install salt"
     echowarn "and its dependencies using pip which will be upgraded to"
     echowarn "at least v${_MINIMUM_PIP_VERSION}, and, in case the setuptools version is also"
-    echowarn "too old, it will be upgraded to at least v${_MINIMUM_SETUPTOOLS_VERSION}"
+    echowarn "too old, it will be upgraded to at least v${_MINIMUM_SETUPTOOLS_VERSION} and less than v${_MAXIMUM_SETUPTOOLS_VERSION}"
     echo
     echowarn "You have 10 seconds to cancel and stop the bootstrap process..."
     echo
@@ -2102,10 +2103,15 @@ __git_clone_and_checkout() {
             if [ "$(git clone 2>&1 | grep 'single-branch')" != "" ]; then
                 # The "--single-branch" option is supported, attempt shallow cloning
                 echoinfo "Attempting to shallow clone $GIT_REV from Salt's repository ${_SALT_REPO_URL}"
-                if git clone --depth 1 --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
+                ## Shallow cloning is resulting in the wrong version of Salt, even with a depth of 5
+                ## getting 3007.0+0na.246d066 when it should be 3007.1+410.g246d066457, disabling for now
+                ## if git clone --depth 1 --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
+                echodebug "git command, git clone --branch $GIT_REV $_SALT_REPO_URL $__SALT_CHECKOUT_REPONAME"
+                if git clone --branch "$GIT_REV" "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME"; then
                     # shellcheck disable=SC2164
                     cd "${_SALT_GIT_CHECKOUT_DIR}"
                     __SHALLOW_CLONE=$BS_TRUE
+                    echoinfo  "shallow path (disabled shallow) git cloned $GIT_REV, version $(python3 salt/version.py)"
                 else
                     # Shallow clone above failed(missing upstream tags???), let's resume the old behaviour.
                     echowarn "Failed to shallow clone."
@@ -2119,9 +2125,12 @@ __git_clone_and_checkout() {
         fi
 
         if [ "$__SHALLOW_CLONE" -eq $BS_FALSE ]; then
+            echodebug "shallow clone false, BS_FALSE $BS_FALSE, git clone $_SALT_REPO_URL $__SALT_CHECKOUT_REPONAME"
             git clone "$_SALT_REPO_URL" "$__SALT_CHECKOUT_REPONAME" || return 1
             # shellcheck disable=SC2164
             cd "${_SALT_GIT_CHECKOUT_DIR}"
+
+            echoinfo  "git cloned $GIT_REV, version $(python3 salt/version.py)"
 
             if ! echo "$_SALT_REPO_URL" | grep -q -F -w "${_SALTSTACK_REPO_URL#*://}"; then
                 # We need to add the saltstack repository as a remote and fetch tags for proper versioning
@@ -2678,7 +2687,7 @@ EOM
         echodebug "Installed pip version: $(${_pip_cmd} --version)"
     fi
 
-    _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION}"
+    _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION},<${_MAXIMUM_SETUPTOOLS_VERSION}"
     if [ "$_PY_MAJOR_VERSION" -ne 3 ]; then
         echoerror "Python version is no longer supported, only Python 3"
         return 1
@@ -2695,10 +2704,12 @@ EOM
     echodebug "Running '${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --upgrade ${_PIP_INSTALL_ARGS}  wheel ${_setuptools_dep}"
     ${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --upgrade ${_PIP_INSTALL_ARGS}  wheel "${_setuptools_dep}"
 
-    echoinfo "Installing salt using ${_py_exe}"
+    echoinfo "Installing salt using ${_py_exe}, $(${_py_exe} --version)"
     cd "${_SALT_GIT_CHECKOUT_DIR}" || return 1
 
-    mkdir /tmp/git/deps
+    mkdir -p /tmp/git/deps
+    echodebug "Created directory /tmp/git/deps"
+    echodebug "Installing Salt dependencies for Salt version $(python3 salt/version.py)"
 
     if [ ${DISTRO_NAME_L} = "ubuntu" ] && [ "$DISTRO_MAJOR_VERSION" -eq 22 ]; then
         echodebug "Ubuntu 22.04 has problem with base.txt requirements file, not parsing sys_platform == 'win32', upgrading from default pip works"
@@ -2729,7 +2740,17 @@ EOM
 
     echoinfo "Installing Built Salt Wheel"
     ${_pip_cmd} uninstall --yes ${_USE_BREAK_SYSTEM_PACKAGES} salt 2>/dev/null || true
+
+    # Hack for getting current Arch working with git-master
+    if [ "${DISTRO_NAME}"  = "Arch Linux" ]; then
+        _arch_dep="cryptography==42.0.7"    # debug matching current Arch version of python-cryptography
+        echodebug "Running '${_pip_cmd} install --force-reinstall --break-system-packages ${_arch_dep}'"
+        ${_pip_cmd} install --force-reinstall --break-system-packages "${_arch_dep}"
+    fi
+
     echodebug "Running '${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --no-deps --force-reinstall ${_PIP_INSTALL_ARGS} /tmp/git/deps/salt*.whl'"
+
+    echodebug "Running ${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --no-deps --force-reinstall ${_PIP_INSTALL_ARGS} --global-option=--salt-config-dir=$_SALT_ETC_DIR --salt-cache-dir=${_SALT_CACHE_DIR} ${SETUP_PY_INSTALL_ARGS} /tmp/git/deps/salt*.whl"
 
     ${_pip_cmd} install ${_USE_BREAK_SYSTEM_PACKAGES} --no-deps --force-reinstall \
         ${_PIP_INSTALL_ARGS} \
@@ -3831,6 +3852,10 @@ install_fedora_git_deps() {
         _TEMP_CONFIG_DIR="${_SALT_GIT_CHECKOUT_DIR}/conf"
         CONFIG_SALT_FUNC="config_salt"
     fi
+
+    _fedora_dep="contextvars"
+    echodebug "Running '${_PY_EXE} -m pip install --upgrade ${_fedora_dep}'"
+    ${_PY_EXE} -m pip install --upgrade "${_fedora_dep}"
 
     return 0
 }
@@ -6024,7 +6049,7 @@ install_photon_git_deps() {
 
     if [ "${DISTRO_MAJOR_VERSION}" -gt 3 ]; then
       # Need newer version of setuptools on Photon
-      _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION}"
+      _setuptools_dep="setuptools>=${_MINIMUM_SETUPTOOLS_VERSION},<${_MAXIMUM_SETUPTOOLS_VERSION}"
       echodebug "Running '${_PY_EXE} -m pip install --upgrade ${_setuptools_dep}'"
       ${_PY_EXE} -m pip install --upgrade "${_setuptools_dep}"
     fi
