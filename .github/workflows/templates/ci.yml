@@ -50,9 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exitstatus
-          path: exitstatus/*
-          retention-days: 7
-          if-no-files-found: error
+          path: exitstatus/
 
   generate-actions-workflow:
     name: Generate The Actions Workflow
@@ -89,9 +87,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exitstatus
-          path: exitstatus/*
-          retention-days: 7
-          if-no-files-found: error
+          path: exitstatus/
 
   lint:
     name: Lint
@@ -116,6 +112,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exitstatus
-          path: exitstatus/*
-          retention-days: 7
-          if-no-files-found: error
+          path: exitstatus/
