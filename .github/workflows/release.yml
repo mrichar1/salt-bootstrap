@@ -145,6 +145,7 @@ jobs:
           path: |
             .cut_release_version
             .cut_release_changes
+          include-hidden-files: true
 
   merge-develop-into-stable:
     name: Merge develop into stable
@@ -259,6 +260,7 @@ jobs:
           ref: stable
           repository: ${{ github.repository }}
           ssh-key: ${{ secrets.SALT_BOOTSTRAP_RELEASE_KEY }}
+
       - name: Download Release Details
         uses: actions/download-artifact@v4
         with:
